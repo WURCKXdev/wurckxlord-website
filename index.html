@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>WurckxLord</title>
+  <meta name="description" content="WurckxLord — a dark fantasy Archlord-inspired remaster project.">
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home">WURCKXLORD</a>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#status">Status</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#download">Download</a>
+    </nav>
+    <a class="discord ghost" href="#" data-disabled="true">Discord soon</a>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <p class="eyebrow">DARK FANTASY MMORPG REMASTER</p>
+        <h1>ENTER<br><span>WURCKXLORD</span></h1>
+        <p class="lead">A rebuilt local Archlord experience with a custom launcher, repaired server data, new branding and a growing remaster pipeline.</p>
+        <div class="actions">
+          <a class="primary" href="#download">Get the launcher</a>
+          <a class="secondary" href="#roadmap">View roadmap</a>
+        </div>
+      </div>
+      <div class="scrollhint">SCROLL TO DESCEND</div>
+    </section>
+
+    <section id="status" class="section status-section">
+      <div class="section-head">
+        <p class="eyebrow">CURRENT BUILD</p>
+        <h2>Development status</h2>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <span class="dot online"></span>
+          <h3>Launcher</h3>
+          <p>Custom WurckxLord launcher with direct game start, server checks, verify and safe repair.</p>
+          <strong>v0.5.3 RC1 PREP</strong>
+        </article>
+        <article class="card">
+          <span class="dot online"></span>
+          <h3>Local server</h3>
+          <p>Local login and game services are running. A successful full login and world session are still being tested.</p>
+          <strong>LOCAL SERVICES UP · LOGIN UNVERIFIED</strong>
+        </article>
+        <article class="card">
+          <span class="dot online"></span>
+          <h3>Data repair</h3>
+          <p>Object remap, teleport repair and client baseline validation completed.</p>
+          <strong>INTERNAL TESTING</strong>
+        </article>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section roadmap-section">
+      <div class="section-head">
+        <p class="eyebrow">ROADMAP</p>
+        <h2>What comes next</h2>
+      </div>
+      <div class="timeline">
+        <div class="step done"><b>01</b><div><h3>Core repair</h3><p>Server cleanup, remapping and baseline checks. End-to-end login verification remains in progress.</p></div></div>
+        <div class="step active"><b>02</b><div><h3>Polish phase</h3><p>Launcher UI, updater, settings, site, loading screens and full WurckxLord branding.</p></div></div>
+        <div class="step"><b>03</b><div><h3>Visual remaster</h3><p>Textures, shaders, UI, armor, environment art, VFX and presentation upgrades.</p></div></div>
+        <div class="step"><b>04</b><div><h3>Public-ready build</h3><p>Installer, patch delivery, release packaging and external server deployment.</p></div></div>
+      </div>
+    </section>
+
+    <section id="download" class="section download-section">
+      <div class="download-box">
+        <p class="eyebrow">WURCKXLORD LAUNCHER</p>
+        <h2>Built to launch our version directly.</h2>
+        <p>The public download will unlock after the final cold-start, installer and release validation pass is complete.</p>
+        <button class="primary disabled" disabled>DOWNLOAD — COMING SOON</button>
+        <small>Current internal build: 0.5.3-rc1-prep</small>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> WurckxLord</span>
+    <span>Independent development project</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
