@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#070707">
+  <title>Skill Builder · WurckxLord</title>
+  <meta name="description" content="Plan Archlord skill builds on your phone — pick a race and class, set your level and spend skill points.">
+  <link rel="icon" href="assets/favicon.ico">
+  <link rel="stylesheet" href="skills.css">
+</head>
+<body>
+  <header class="sb-top">
+    <a class="sb-back" href="index.html" aria-label="Back to WurckxLord home">&#8592;</a>
+    <div class="sb-title">
+      <span class="sb-eyebrow">WURCKXLORD</span>
+      <strong>Skill Builder</strong>
+    </div>
+    <button class="sb-icon" id="shareBtn" type="button">Share</button>
+  </header>
+
+  <section class="sb-picker" aria-label="Race and class">
+    <div class="sb-chips" id="raceChips" role="tablist" aria-label="Race"></div>
+    <div class="sb-chips sb-classes" id="classChips" role="tablist" aria-label="Class"></div>
+  </section>
+
+  <section class="sb-stats" aria-label="Character">
+    <div class="sb-level">
+      <span class="sb-label">Level</span>
+      <div class="sb-stepper">
+        <button type="button" id="lvlDown" aria-label="Lower level">&minus;</button>
+        <input id="lvlInput" type="number" inputmode="numeric" min="1" max="99" value="99" aria-label="Character level">
+        <button type="button" id="lvlUp" aria-label="Raise level">+</button>
+      </div>
+    </div>
+    <div class="sb-points">
+      <span class="sb-label">Skill points</span>
+      <div><b id="spLeft">0</b><span id="spTotal"> / 0</span></div>
+      <div class="sb-bar"><i id="spBar"></i></div>
+    </div>
+  </section>
+
+  <nav class="sb-filters" id="filters" aria-label="Filter skills">
+    <button type="button" data-f="all" class="on">All</button>
+    <button type="button" data-f="active">Active</button>
+    <button type="button" data-f="passive">Passive</button>
+    <button type="button" data-f="buff">Buff</button>
+    <button type="button" data-f="learned">Learned</button>
+  </nav>
+
+  <main class="sb-list" id="skillList" aria-live="polite"></main>
+
+  <p class="sb-note">Preview data — skill names and values are placeholders until they're synced with the WurckxLord server tables.</p>
+
+  <footer class="sb-actions">
+    <span class="sb-class-label" id="classLabel"></span>
+    <button type="button" class="sb-reset" id="resetBtn">Reset</button>
+  </footer>
+
+  <div class="sb-sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="sb-sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetName" hidden>
+    <div class="sb-grab"></div>
+    <div class="sb-sheet-head">
+      <span class="sb-badge" id="sheetBadge"></span>
+      <div>
+        <h2 id="sheetName"></h2>
+        <span class="sb-type" id="sheetType"></span>
+      </div>
+      <button type="button" class="sb-close" id="sheetClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="sb-sheet-body" id="sheetBody"></div>
+    <div class="sb-sheet-controls">
+      <button type="button" id="sheetMin" aria-label="Remove all points">0</button>
+      <button type="button" id="sheetMinus" aria-label="Remove one point">&minus;</button>
+      <output id="sheetLevel">0 / 0</output>
+      <button type="button" id="sheetPlus" aria-label="Add one point">+</button>
+      <button type="button" id="sheetMax" aria-label="Add as many points as possible">Max</button>
+    </div>
+  </section>
+
+  <div class="sb-toast" id="toast" role="status"></div>
+
+  <script src="skills-data.js"></script>
+  <script src="skills.js"></script>
+</body>
+</html>
