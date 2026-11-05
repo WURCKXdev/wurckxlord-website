@@ -1,6 +1,6 @@
 /* Offline support for the WurckxLord Skill Builder.
  * Bump VERSION whenever app files change so installed copies update. */
-var VERSION = "skills-v1";
+var VERSION = "skills-v2";
 var SHELL = [
   "./skills.html",
   "./skills.css",
