@@ -177,3 +177,14 @@ a{color:inherit;text-decoration:none}
   .sb-points b{font-size:30px}
 }
 .sb-has{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);vertical-align:middle;margin-left:4px}
+
+/* installed-app polish */
+.sb-top{padding-top:calc(10px + env(safe-area-inset-top,0px))}
+.sb-filters{top:calc(61px + env(safe-area-inset-top,0px))}
+.sb-install{background:#f2f2f2;color:#090909;border-color:#f2f2f2}
+.sb-app-icon{width:48px;height:48px;border-radius:11px}
+.sb-steps{margin:18px 0 8px;padding-left:22px;line-height:1.7;color:#d0d0d6;font-size:15px}
+.sb-steps li{margin-bottom:8px}
+.sb-share-glyph{display:inline-grid;place-items:center;width:22px;height:22px;border:1px solid #555;border-radius:5px;font-size:13px;margin-left:4px}
+@media (display-mode:standalone){ .sb-back{display:none} }
+#iosSheet .sb-type{text-transform:none}

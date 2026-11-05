@@ -7,6 +7,12 @@
   <title>Skill Builder · WurckxLord</title>
   <meta name="description" content="Plan Archlord skill builds on your phone — pick a race and class, set your level and spend skill points.">
   <link rel="icon" href="assets/favicon.ico">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Skill Builder">
   <link rel="stylesheet" href="skills.css">
 </head>
 <body>
@@ -16,6 +22,7 @@
       <span class="sb-eyebrow">WURCKXLORD</span>
       <strong>Skill Builder</strong>
     </div>
+    <button class="sb-icon sb-install" id="installBtn" type="button" hidden>Install</button>
     <button class="sb-icon" id="shareBtn" type="button">Share</button>
   </header>
 
@@ -80,7 +87,23 @@
 
   <div class="sb-toast" id="toast" role="status"></div>
 
+  <div class="sb-sheet-backdrop" id="iosBackdrop" hidden></div>
+  <section class="sb-sheet" id="iosSheet" role="dialog" aria-modal="true" aria-labelledby="iosTitle" hidden>
+    <div class="sb-grab"></div>
+    <div class="sb-sheet-head">
+      <img class="sb-app-icon" src="assets/icons/icon-192.png" alt="">
+      <div><h2 id="iosTitle">Install Skill Builder</h2><span class="sb-type">Works offline, opens full screen</span></div>
+      <button type="button" class="sb-close" id="iosClose" aria-label="Close">&times;</button>
+    </div>
+    <ol class="sb-steps">
+      <li>Tap the <b>Share</b> button in Safari's toolbar <span class="sb-share-glyph" aria-hidden="true">&#x2191;</span></li>
+      <li>Scroll down and choose <b>Add to Home Screen</b></li>
+      <li>Tap <b>Add</b> — the app appears on your home screen</li>
+    </ol>
+  </section>
+
   <script src="skills-data.js"></script>
   <script src="skills.js"></script>
+  <script src="pwa.js"></script>
 </body>
 </html>

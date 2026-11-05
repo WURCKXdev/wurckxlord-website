@@ -1,0 +1,18 @@
+{
+  "id": "./skills.html",
+  "name": "WurckxLord Skill Builder",
+  "short_name": "Skill Builder",
+  "description": "Plan Archlord skill builds: pick a race and class, set your level and spend skill points.",
+  "start_url": "./skills.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070707",
+  "theme_color": "#070707",
+  "categories": ["games", "utilities"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
