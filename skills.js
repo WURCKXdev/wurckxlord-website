@@ -174,6 +174,7 @@
         esc(c.name) + used + "<small>" + esc(c.role) + "</small></button>";
     }).join("");
     document.documentElement.style.setProperty("--cls", cls().color);
+    if (window.SB_BG) window.SB_BG.setClass(cls().id, cls().color);
   }
 
   function renderStats(){

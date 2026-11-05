@@ -241,3 +241,24 @@ body:not([data-view="damage"]) .v-damage{display:none}
 .sb-per:empty{display:none}
 .sb-per dd small{color:var(--muted);font-weight:500}
 .sb-effect{display:block;color:#d0d0d6}
+
+/* animated class backdrop */
+html{background:var(--bg)}
+body{background:transparent;position:relative}
+.sb-bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+body > *:not(.sb-bg){position:relative;z-index:1}
+body > .sb-top,body > .sb-filters{position:sticky;z-index:9}
+body > .sb-top{z-index:10}
+body > .sb-actions{position:fixed;z-index:10}
+body > .sb-sheet-backdrop{position:fixed;z-index:30}
+body > .sb-sheet{position:fixed;z-index:31}
+body > .sb-toast{position:fixed;z-index:40}
+.sb-skill,.sb-step{background:linear-gradient(145deg,rgba(17,17,20,.78),rgba(10,10,11,.7))}
+.sb-level,.sb-points,.sb-card,.sb-views,.sb-chips button{background:rgba(15,15,18,.72)}
+.sb-classes button[aria-selected="true"]{background:rgba(22,22,26,.85)}
+.sb-chips button[aria-selected="true"]:not(.sb-classes button){background:#f2f2f2}
+@media (prefers-reduced-motion:reduce){.sb-bg{opacity:.8}}
+.sb-bg{opacity:.75}
+.sb-filters{background:rgba(7,7,7,.6)}
+.sb-classes button .sb-has{position:absolute;top:8px;right:8px;margin:0}
+.sb-classes button{position:relative}
