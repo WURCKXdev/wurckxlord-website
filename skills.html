@@ -31,7 +31,12 @@
     <div class="sb-chips sb-classes" id="classChips" role="tablist" aria-label="Class"></div>
   </section>
 
-  <section class="sb-stats" aria-label="Character">
+  <nav class="sb-views" id="viewTabs" role="tablist" aria-label="View">
+    <button type="button" role="tab" data-view="build" aria-selected="true">Build</button>
+    <button type="button" role="tab" data-view="damage" aria-selected="false">Damage</button>
+  </nav>
+
+  <section class="sb-stats v-build" aria-label="Character">
     <div class="sb-level">
       <span class="sb-label">Level</span>
       <div class="sb-stepper">
@@ -47,7 +52,7 @@
     </div>
   </section>
 
-  <nav class="sb-filters" id="filters" aria-label="Filter skills">
+  <nav class="sb-filters v-build" id="filters" aria-label="Filter skills">
     <button type="button" data-f="all" class="on">All</button>
     <button type="button" data-f="active">Active</button>
     <button type="button" data-f="passive">Passive</button>
@@ -55,9 +60,41 @@
     <button type="button" data-f="learned">Learned</button>
   </nav>
 
-  <main class="sb-list" id="skillList" aria-live="polite"></main>
+  <main class="sb-list v-build" id="skillList" aria-live="polite"></main>
 
-  <p class="sb-note">Preview data — skill names and values are placeholders until they're synced with the WurckxLord server tables.</p>
+  <main class="sb-dmg-view v-damage" id="dmgView">
+    <section class="sb-card">
+      <div class="sb-card-head"><span class="sb-label">Your stats</span><button type="button" class="sb-link" id="dmgReset">Reset</button></div>
+      <div class="sb-stat-grid">
+        <label>Weapon attack<input id="st-weapon" type="number" inputmode="decimal" min="0"></label>
+        <label>Magic power<input id="st-magic" type="number" inputmode="decimal" min="0"></label>
+        <label>Crit chance %<input id="st-crit" type="number" inputmode="decimal" min="0" max="100"></label>
+        <label>Crit damage %<input id="st-critDmg" type="number" inputmode="decimal" min="100"></label>
+        <label class="wide">Enemy damage reduction %<input id="st-reduction" type="number" inputmode="decimal" min="0" max="100"></label>
+      </div>
+      <p class="sb-passives" id="dmgPassives"></p>
+    </section>
+
+    <section class="sb-card">
+      <span class="sb-label">Add skills in cast order</span>
+      <div class="sb-palette" id="dmgPalette"></div>
+    </section>
+
+    <section class="sb-card sb-summary">
+      <div><span class="sb-label">Total damage</span><b id="dmgTotal">0</b></div>
+      <div><span class="sb-label">Time</span><b id="dmgTime">0s</b></div>
+      <div><span class="sb-label">DPS</span><b id="dmgDps">0</b></div>
+    </section>
+    <div class="sb-rot-actions">
+      <button type="button" class="sb-best" id="dmgOptimize">Find best order</button>
+      <button type="button" class="sb-link" id="dmgClear">Clear</button>
+    </div>
+    <ol class="sb-steps-list" id="dmgSteps"></ol>
+    <section class="sb-sheet-body sb-per" id="dmgPerSkill"></section>
+    <p class="sb-note">Single-target estimate using average crits. Buffs and debuffs boost every hit that lands while they're active, so cast order changes the total. Damage over time is counted in full when cast.</p>
+  </main>
+
+  <p class="sb-note">Preview data — skill names, values and formulas are placeholders until they're synced with the WurckxLord server tables.</p>
 
   <footer class="sb-actions">
     <span class="sb-class-label" id="classLabel"></span>
@@ -103,7 +140,9 @@
   </section>
 
   <script src="skills-data.js"></script>
+  <script src="skills-combat.js"></script>
   <script src="skills.js"></script>
+  <script src="rotation.js"></script>
   <script src="pwa.js"></script>
 </body>
 </html>

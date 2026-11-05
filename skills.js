@@ -26,6 +26,7 @@
   var state = { cls: window.ARCH_RACES[0].classes[0].id, level: RULES.maxLevel, builds: {} };
   var filter = "all";
   var openSkill = null;
+  var pendingRotation = null;   // rotation read from a shared link, applied by rotation.js
 
   function cls(){ return classes[state.cls]; }
   function alloc(){ return state.builds[state.cls] || (state.builds[state.cls] = {}); }
@@ -92,10 +93,11 @@
   // ---------- persistence / sharing ----------
   function encode(){
     var c = cls();
-    return c.id + "-" + state.level + "-" + c.list.map(function(s){ return lv(s.id).toString(36); }).join("");
+    var extra = window.SB && window.SB.extraHash ? window.SB.extraHash() : "";
+    return c.id + "-" + state.level + "-" + c.list.map(function(s){ return lv(s.id).toString(36); }).join("") + (extra ? "~" + extra : "");
   }
   function decode(str){
-    var m = /^([a-z]+)-(\d{1,3})-([0-9a-z]*)$/.exec(str || "");
+    var m = /^([a-z]+)-(\d{1,3})-([0-9a-z]*)(?:~([0-9a-z]*))?$/.exec(str || "");
     if (!m || !classes[m[1]]) return false;
     var c = classes[m[1]];
     state.cls = c.id;
@@ -107,6 +109,7 @@
     });
     state.builds[c.id] = a;
     trim();
+    if (m[4] != null) pendingRotation = { cls: c.id, code: m[4] };
     return true;
   }
   function save(){
@@ -262,6 +265,7 @@
     renderStats();
     renderList();
     renderSheet();
+    if (window.SB.onRender) window.SB.onRender();
   }
 
   function commit(){ save(); render(); }
@@ -402,6 +406,14 @@
   window.addEventListener("hashchange", function(){
     if (location.hash.slice(1) !== encode() && decode(decodeURIComponent(location.hash.slice(1)))) commit();
   });
+
+  // shared with rotation.js
+  window.SB = {
+    cls: cls, lv: lv, classRace: function(){ return classRace[state.cls]; },
+    initials: initials, esc: esc, fmt: fmt, toast: toast, save: save,
+    describe: describe, state: state, onRender: null, extraHash: null,
+    takePendingRotation: function(){ var r = pendingRotation; pendingRotation = null; return r; }
+  };
 
   load();
   commit();
