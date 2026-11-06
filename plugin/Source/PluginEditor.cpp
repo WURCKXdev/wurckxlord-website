@@ -189,8 +189,9 @@ FluxEditor::FluxEditor (FluxProcessor& p) : AudioProcessorEditor (&p), proc (p),
         b.setColour (juce::ToggleButton::tickColourId, c);
         b.setWantsKeyboardFocus (false);
         b.onClick = [this, &b, &flag] { flag = b.getToggleState(); roll.repaint(); };
-        addAndMakeVisible (b);
+        legend.addAndMakeVisible (b);
     };
+    addAndMakeVisible (legend);
     setupShow (showVel, juce::Colour (0xfff0b54a), roll.showVel);
     setupShow (showRvel, juce::Colour (0xffb48cff), roll.showRvel);
     setupShow (showPr, juce::Colour (0xff3d8bff), roll.showPr);
@@ -205,8 +206,15 @@ FluxEditor::FluxEditor (FluxProcessor& p) : AudioProcessorEditor (&p), proc (p),
     syncFields();
     refresh();
     setResizable (true, true);
-    setResizeLimits (1240, 560, 3200, 2000);
-    setSize (1260, 780);
+    // Fit the screen: laptops at 1366x768 (or smaller) must see the whole window.
+    int w = 1260, h = 780;
+    if (const auto* display = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay())
+    {
+        w = juce::jmin (w, display->userArea.getWidth() - 24);
+        h = juce::jmin (h, display->userArea.getHeight() - 64);
+    }
+    setResizeLimits (720, 440, 3200, 2000);
+    setSize (juce::jmax (720, w), juce::jmax (440, h));
     startTimerHz (30);
 }
 
@@ -344,14 +352,14 @@ void FluxEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour (0xff0b0b14));
     g.setColour (kPanel);
-    g.fillRect (0, 0, getWidth(), 46);
+    g.fillRect (0, 0, getWidth(), bar1H);
     g.setColour (kPanel2);
-    g.fillRect (0, 46, getWidth(), 56);
+    g.fillRect (0, bar1H, getWidth(), bar2H);
     g.setColour (kPanel);
     g.fillRect (0, getHeight() - 24, getWidth(), 24);
     g.setColour (kLine);
-    g.drawHorizontalLine (46, 0, (float) getWidth());
-    g.drawHorizontalLine (102, 0, (float) getWidth());
+    g.drawHorizontalLine (bar1H, 0, (float) getWidth());
+    g.drawHorizontalLine (bar1H + bar2H, 0, (float) getWidth());
     g.setColour (kText);
     g.setFont (juce::FontOptions (19.0f, juce::Font::bold));
     g.drawText ("F L U X", 14, 6, 100, 22, juce::Justification::centredLeft);
@@ -362,43 +370,65 @@ void FluxEditor::paint (juce::Graphics& g)
 
 void FluxEditor::resized()
 {
-    // row 1: tools and commands
-    int x = 112;
-    const int y1 = 8, h1 = 30;
-    auto place = [&] (juce::Component& c, int w) { c.setBounds (x, y1, w, h1); x += w + 4; };
-    auto gap = [&] { x += 8; };
-    place (drawB, 50); place (selectB, 56); place (panB, 44); gap();
-    place (copyB, 50); place (pasteB, 52); place (deleteB, 56); gap();
-    place (undoB, 50); place (redoB, 50); gap();
-    place (openB, 50); place (saveB, 48); place (exportB, 90); place (dragB, 96); place (newB, 44); gap();
-    place (loopB, 48); place (gridB, 78); place (quantB, 70); place (snapB, 80);
+    // Flow layout: controls wrap onto extra lines when the window is narrow.
+    struct Cell { int w; std::function<void (int, int)> put; int gapAfter; };
+    const int right = getWidth() - 8;
 
-    // row 2: transport, settings, lanes
-    x = 12;
-    const int ly = 50, cy = 68, ch = 28;
-    auto placeT = [&] (juce::Component& c, int w) { c.setBounds (x, cy, w, ch); x += w + 4; };
-    placeT (playB, 60); placeT (stopB, 52); placeT (recB, 48); x += 12;
+    auto flow = [right] (std::vector<Cell>& cells, int x0, int y0, int lineH, int firstLineX)
+    {
+        int x = firstLineX, y = y0;
+        for (auto& c : cells)
+        {
+            if (x + c.w > right && x > x0) { x = x0; y += lineH; }
+            c.put (x, y);
+            x += c.w + c.gapAfter;
+        }
+        return y + lineH;
+    };
+
+    // bar 1: tools and commands (30 px buttons)
+    std::vector<Cell> row1;
+    auto btn = [&] (juce::Component& comp, int w, int gapAfter = 4)
+    { row1.push_back ({ w, [&comp, w] (int x, int y) { comp.setBounds (x, y, w, 30); }, gapAfter }); };
+    btn (drawB, 50); btn (selectB, 56); btn (panB, 44, 12);
+    btn (copyB, 50); btn (pasteB, 52); btn (deleteB, 56, 12);
+    btn (undoB, 50); btn (redoB, 50, 12);
+    btn (openB, 50); btn (saveB, 48); btn (exportB, 90); btn (dragB, 96); btn (newB, 44, 12);
+    btn (loopB, 48); btn (gridB, 78); btn (quantB, 70); btn (snapB, 80);
+    bar1H = flow (row1, 12, 8, 36, 112) + 2;
+
+    // bar 2: transport, settings (label above a 28 px control)
+    std::vector<Cell> row2;
+    auto tbtn = [&] (juce::Component& comp, int w, int gapAfter = 4)
+    { row2.push_back ({ w, [&comp, w] (int x, int y) { comp.setBounds (x, y + 18, w, 28); }, gapAfter }); };
     auto field = [&] (Field& f, int w)
     {
-        f.label.setBounds (x, ly, w + 20, 16);
-        f.slider.setBounds (x, cy, w, ch);
-        x += w + 12;
+        row2.push_back ({ w, [&f, w] (int x, int y)
+                          {
+                              f.label.setBounds (x, y, w + 20, 16);
+                              f.slider.setBounds (x, y + 18, w, 28);
+                          }, 12 });
     };
+    tbtn (playB, 60); tbtn (stopB, 52); tbtn (recB, 48, 16);
     field (bpmF, 96); field (barsF, 88); field (transF, 88); field (bendF, 88);
-    laneLabel.setBounds (x, ly, 100, 16);
-    laneBox.setBounds (x, cy, 120, ch);
-    x += 132;
-    placeT (synthB, 58); placeT (midiOutB, 74); x += 8;
+    row2.push_back ({ 120, [this] (int x, int y)
+                      {
+                          laneLabel.setBounds (x, y, 100, 16);
+                          laneBox.setBounds (x, y + 18, 120, 28);
+                      }, 12 });
+    tbtn (synthB, 58); tbtn (midiOutB, 74, 12);
     field (gainF, 90); field (echoF, 70); field (vzoomF, 70); field (hzoomF, 70);
+    const int bar2End = flow (row2, 12, bar1H + 4, 52, 12);
+    bar2H = bar2End - bar1H + 2;
+    const int rollTop = bar1H + bar2H + 1;
 
-    const int lx = getWidth() - 132;
-    const int ty = 106;
-    showVel.setBounds (lx, ty + 22, 120, 20);
-    showRvel.setBounds (lx, ty + 42, 120, 20);
-    showPr.setBounds (lx, ty + 62, 120, 20);
-    showSl.setBounds (lx, ty + 82, 120, 20);
+    legend.setBounds (getWidth() - 140, rollTop + 30, 128, 90);
+    showVel.setBounds (6, 4, 118, 20);
+    showRvel.setBounds (6, 24, 118, 20);
+    showPr.setBounds (6, 44, 118, 20);
+    showSl.setBounds (6, 64, 118, 20);
 
-    roll.setBounds (0, 103, getWidth(), getHeight() - 103 - 24);
-    for (auto* b : { &showVel, &showRvel, &showPr, &showSl }) b->toFront (false);
+    roll.setBounds (0, rollTop, getWidth(), getHeight() - rollTop - 24);
+    legend.toFront (false);
     hint.setBounds (8, getHeight() - 24, getWidth() - 16, 24);
 }

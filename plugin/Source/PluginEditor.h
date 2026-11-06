@@ -23,6 +23,20 @@ private:
     bool dragging = false;
 };
 
+// Dark rounded backdrop for the lane visibility toggles.
+class LegendPanel : public juce::Component
+{
+public:
+    void paint (juce::Graphics& g) override
+    {
+        auto r = getLocalBounds().toFloat().reduced (0.5f);
+        g.setColour (juce::Colour (0xd90a0a14));
+        g.fillRoundedRectangle (r, 8.0f);
+        g.setColour (juce::Colour (0xff2a2b42));
+        g.drawRoundedRectangle (r, 8.0f, 1.0f);
+    }
+};
+
 class FluxEditor : public juce::AudioProcessorEditor, private juce::Timer
 {
 public:
@@ -62,12 +76,14 @@ private:
     juce::Label laneLabel;
     juce::ComboBox laneBox;
     juce::Label hint;
+    LegendPanel legend;
     juce::ToggleButton showVel { "Velocity" }, showRvel { "Release vel" }, showPr { "Pressure" }, showSl { "Slide" };
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> loopA, synthA, midiOutA;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainA, echoA;
     std::unique_ptr<juce::FileChooser> chooser;
     int seenModelVersion = -1;
+    int bar1H = 46, bar2H = 56;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FluxEditor)
 };

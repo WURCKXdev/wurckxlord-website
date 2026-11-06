@@ -118,6 +118,18 @@ int main (int argc, char** argv)
         juce::FileOutputStream os (f);
         juce::PNGImageFormat().writeImageToStream (img, os);
         check (img.getWidth() > 0, "editor renders (" + juce::String (img.getWidth()) + "x" + juce::String (img.getHeight()) + ")");
+
+        // small laptop / VM screen: toolbars must wrap and stay inside the window
+        ed->setSize (900, 600);
+        auto small = ed->createComponentSnapshot (ed->getLocalBounds(), true, 1.0f);
+        bool inside = true;
+        for (auto* c : ed->getChildren())
+            if (c->isVisible() && ! ed->getLocalBounds().contains (c->getBounds())) inside = false;
+        check (inside, "all controls fit in a 900x600 window");
+        const juce::File f2 = f.getSiblingFile (f.getFileNameWithoutExtension() + "-small.png");
+        f2.deleteFile();
+        juce::FileOutputStream os2 (f2);
+        juce::PNGImageFormat().writeImageToStream (small, os2);
     }
 
     std::cout << (failures == 0 ? "ALL TESTS PASSED" : "TESTS FAILED") << std::endl;
