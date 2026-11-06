@@ -7,6 +7,9 @@ on:
       - '.github/workflows/build-plugin.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   windows:
     runs-on: windows-latest
@@ -29,8 +32,22 @@ jobs:
           Copy-Item -Recurse "build/FLUX_artefacts/Release/VST3/FLUX.vst3" dist/
           Copy-Item "build/FLUX_artefacts/Release/Standalone/FLUX.exe" dist/
           Copy-Item "plugin/INSTALL.txt" dist/
+          Compress-Archive -Path dist/* -DestinationPath FLUX-Windows-x64.zip -Force
 
       - uses: actions/upload-artifact@v4
         with:
           name: FLUX-Windows-x64
           path: dist
+
+      - name: Publish zip as a GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: flux-build-${{ github.run_number }}
+          name: FLUX for Windows (build ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: FLUX-Windows-x64.zip
+          body: |
+            FLUX VST3 + standalone for Windows x64.
+            Download **FLUX-Windows-x64.zip**, unzip it and read INSTALL.txt.
+            Standalone: double-click FLUX.exe. VST3: copy FLUX.vst3 to C:\Program Files\Common Files\VST3\

@@ -3,6 +3,10 @@
 C++/JUCE version of the FLUX line sequencer in `../flux/`. Same pattern format (JSON), same editing model,
 plus DAW transport sync, a built-in synth, live MPE MIDI output, MIDI/MPE recording and drag-to-DAW MIDI export.
 
+## Download (Windows)
+
+**[FLUX-Windows-x64.zip](https://github.com/WURCKXdev/wurckxlord-website/releases/latest/download/FLUX-Windows-x64.zip)** — always the newest build. Unzip and read `INSTALL.txt`.
+
 ## Getting the Windows build
 
 Every push that touches `plugin/` runs **Actions → "Build FLUX plugin (Windows)"** on GitHub.
