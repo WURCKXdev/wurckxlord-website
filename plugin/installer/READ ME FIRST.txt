@@ -1,0 +1,21 @@
+FLUX - line-based MPE sequencer for Windows (64-bit)
+=====================================================
+
+EASY WAY
+1. Double-click  FLUX-Setup.exe
+2. If Windows says "Windows protected your PC": click "More info" -> "Run anyway".
+   (FLUX is a free indie plugin and is not code-signed, so Windows shows this once.)
+3. Click Next until it is installed. It installs:
+     - the VST3 plugin  -> C:\Program Files\Common Files\VST3\FLUX.vst3
+     - the standalone app (Start menu + optional desktop shortcut)
+4. In your DAW: rescan plugins and load "FLUX" as an instrument.
+   Standalone: open FLUX from the Start menu. If there is no sound,
+   click Options (top-left) and choose your audio device.
+
+NO-INSTALL WAY (Portable folder)
+- Portable\FLUX.exe runs directly.
+- Copy Portable\FLUX.vst3 into C:\Program Files\Common Files\VST3\ yourself.
+
+Uninstall: Windows Settings -> Apps -> FLUX -> Uninstall.
+
+Full how-to: Portable\INSTALL.txt

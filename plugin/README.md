@@ -5,7 +5,10 @@ plus DAW transport sync, a built-in synth, live MPE MIDI output, MIDI/MPE record
 
 ## Download (Windows)
 
-**[FLUX-Windows-x64.zip](https://github.com/WURCKXdev/wurckxlord-website/releases/latest/download/FLUX-Windows-x64.zip)** — always the newest build. Unzip and read `INSTALL.txt`.
+- **[FLUX-Setup.exe](https://github.com/WURCKXdev/wurckxlord-website/releases/latest/download/FLUX-Setup.exe)** — installer (VST3 + standalone)
+- **[FLUX-Windows-x64.zip](https://github.com/WURCKXdev/wurckxlord-website/releases/latest/download/FLUX-Windows-x64.zip)** — shareable folder: installer + READ ME FIRST + portable version
+
+Both always point to the newest build. The installer script is `installer/FLUX.iss` (Inno Setup).
 
 ## Getting the Windows build
 
