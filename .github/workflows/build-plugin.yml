@@ -1,0 +1,36 @@
+name: Build FLUX plugin (Windows)
+
+on:
+  push:
+    paths:
+      - 'plugin/**'
+      - '.github/workflows/build-plugin.yml'
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S plugin -B build -A x64 -DFLUX_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        run: build\Release\FluxTests.exe
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item -Recurse "build/FLUX_artefacts/Release/VST3/FLUX.vst3" dist/
+          Copy-Item "build/FLUX_artefacts/Release/Standalone/FLUX.exe" dist/
+          Copy-Item "plugin/INSTALL.txt" dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FLUX-Windows-x64
+          path: dist
