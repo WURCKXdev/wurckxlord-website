@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <meta name="theme-color" content="#0b0b14">
+  <title>FLUX Line Sequencer</title>
+  <meta name="description" content="FLUX — an expressive line-based MPE sequencer that runs in the browser and exports MPE MIDI.">
+  <link rel="icon" href="../assets/favicon.ico">
+  <link rel="stylesheet" href="flux.css">
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <div class="logo">FLUX<small>line sequencer</small></div>
+    <div class="group" id="tools">
+      <button data-tool="draw" title="Draw (D)">Draw</button>
+      <button data-tool="select" class="on" title="Select (S)">Select</button>
+      <button data-tool="pan" title="Pan (H)">Pan</button>
+    </div>
+    <div class="group">
+      <button id="copy" title="Ctrl+C">Copy</button>
+      <button id="paste" title="Ctrl+V">Paste</button>
+      <button id="del" title="Delete">Delete</button>
+    </div>
+    <div class="group">
+      <button id="undo" title="Ctrl+Z">Undo</button>
+      <button id="redo" title="Ctrl+Y">Redo</button>
+    </div>
+    <div class="group">
+      <button id="open">Open</button>
+      <button id="save">Save</button>
+      <button id="midi" class="accent" title="Export MPE MIDI file">Export MIDI</button>
+      <button id="clear">New</button>
+      <input type="file" id="file" accept=".json,application/json" hidden>
+    </div>
+    <div class="group">
+      <button id="loop" class="on" title="L">Loop</button>
+      <button id="grid">Grid 1/16</button>
+      <button id="quant" title="Q">Quantise</button>
+      <button id="snap" class="on">Snap pitch</button>
+    </div>
+  </div>
+  <div class="bar">
+    <div class="group">
+      <button id="play" class="primary" title="Space">Play</button>
+      <button id="stop">Stop</button>
+      <button id="rec" class="rec" title="Record from computer keys or MIDI/MPE controller">Rec</button>
+      <button id="keys" title="Play with computer keyboard / MIDI input">Keys</button>
+    </div>
+    <label class="field">BPM<input id="bpm" type="number" min="30" max="300" value="110"></label>
+    <label class="field">Bars<input id="bars" type="number" min="1" max="128" value="8"></label>
+    <label class="field">Transpose<input id="transpose" type="number" min="-24" max="24" value="0"></label>
+    <label class="field">Bend range<input id="bend" type="number" min="1" max="96" value="48"></label>
+    <label class="field">Edit
+      <select id="lane">
+        <option value="pitch">Pitch / time</option>
+        <option value="pr">Pressure</option>
+        <option value="sl">Slide</option>
+        <option value="vel">Velocity</option>
+        <option value="rvel">Release vel</option>
+      </select>
+    </label>
+    <label class="field">V zoom<input id="vzoom" type="range" min="8" max="40" value="16"></label>
+    <label class="field">H zoom<input id="hzoom" type="range" min="10" max="220" value="44"></label>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="roll"></canvas>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="hint" id="hint"></div>
+</div>
+<script src="flux.js"></script>
+</body>
+</html>
