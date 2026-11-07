@@ -1,0 +1,208 @@
+name: Build FLUX plugin (Windows)
+
+# 1) builds + tests + publishes FLUX-Setup.exe as the latest release
+# 2) installs that public download on a clean Windows VM and checks it end to end
+
+on:
+  push:
+    paths:
+      - 'plugin/**'
+      - '.github/workflows/build-plugin.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S plugin -B build -A x64 -DFLUX_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        run: build\Release\FluxTests.exe
+
+      - name: Package app files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item -Recurse "build/FLUX_artefacts/Release/VST3/FLUX.vst3" dist/
+          Copy-Item "build/FLUX_artefacts/Release/Standalone/FLUX.exe" dist/
+          Copy-Item "plugin/INSTALL.txt" dist/
+
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          & $iscc /DDist="$PWD\dist" /DAppVersion="0.1.${{ github.run_number }}" /O"$PWD" plugin\installer\FLUX.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Make the shareable folder
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force share/FLUX/Portable | Out-Null
+          Copy-Item FLUX-Setup.exe share/FLUX/
+          Copy-Item "plugin/installer/READ ME FIRST.txt" share/FLUX/
+          Copy-Item -Recurse dist/* share/FLUX/Portable/
+          Compress-Archive -Path share/FLUX -DestinationPath FLUX-Windows-x64.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FLUX-Windows-x64
+          path: share
+
+      - name: Publish zip as a GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: flux-build-${{ github.run_number }}
+          name: FLUX for Windows (build ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: |
+            FLUX-Windows-x64.zip
+            FLUX-Setup.exe
+          body: |
+            FLUX VST3 + standalone for Windows x64.
+            - **FLUX-Setup.exe** - the installer (VST3 + standalone). Just run it.
+            - **FLUX-Windows-x64.zip** - a folder with the installer, a READ ME FIRST, and a portable version.
+            Windows may show "Windows protected your PC" (the app is not code-signed): click More info -> Run anyway.
+
+  vm-test:
+    name: Clean Windows VM test (install, launch, pluginval, uninstall)
+    needs: windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Prepare
+        run: |
+          New-Item -ItemType Directory -Force results | Out-Null
+          @'
+          function Check([bool]$ok, [string]$msg) {
+            $line = $(if ($ok) { 'PASS' } else { 'FAIL' }) + '  ' + $msg
+            Add-Content results/report.txt $line
+            Write-Host $line
+            if (-not $ok) { New-Item -Force results/FAILED | Out-Null }
+          }
+          function Shot([string]$path) {
+            Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $bmp.Save($path)
+          }
+          '@ | Set-Content helpers.ps1
+          "FLUX clean-VM test  $(Get-Date -Format u)" | Set-Content results/report.txt
+          "Windows: $((Get-CimInstance Win32_OperatingSystem).Caption) $((Get-CimInstance Win32_OperatingSystem).Version)" | Add-Content results/report.txt
+
+      - name: Download installer from the public link
+        run: |
+          . ./helpers.ps1
+          $url = 'https://github.com/WURCKXdev/wurckxlord-website/releases/latest/download/FLUX-Setup.exe'
+          Invoke-WebRequest $url -OutFile FLUX-Setup.exe
+          Check ((Get-Item FLUX-Setup.exe).Length -gt 1MB) "Downloaded FLUX-Setup.exe ($((Get-Item FLUX-Setup.exe).Length) bytes)"
+
+      - name: Install (silent)
+        run: |
+          . ./helpers.ps1
+          $p = Start-Process .\FLUX-Setup.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/LOG=results\install.log' -Wait -PassThru
+          Check ($p.ExitCode -eq 0) "Installer finished (exit code $($p.ExitCode))"
+          $vst = "$env:CommonProgramFiles\VST3\FLUX.vst3\Contents\x86_64-win\FLUX.vst3"
+          Check (Test-Path $vst) "VST3 installed: $vst"
+          Check (Test-Path "$env:ProgramFiles\FLUX\FLUX.exe") "Standalone installed: $env:ProgramFiles\FLUX\FLUX.exe"
+          Check (Test-Path "$env:ProgramFiles\FLUX\INSTALL.txt") "How-to installed"
+          Check (Test-Path "$env:ProgramFiles\FLUX\unins000.exe") "Uninstaller installed"
+          $menu = "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\FLUX\FLUX.lnk"
+          Check (Test-Path $menu) "Start menu shortcut"
+          Check (Test-Path "$env:PUBLIC\Desktop\FLUX.lnk") "Desktop shortcut"
+          $reg = Get-ChildItem HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall |
+                 Get-ItemProperty | Where-Object { $_.DisplayName -eq 'FLUX' }
+          Check ($null -ne $reg) "Listed in Settings > Apps (version $($reg.DisplayVersion))"
+
+      - name: Launch the standalone app
+        if: always()
+        run: |
+          . ./helpers.ps1
+          $p = Start-Process "$env:ProgramFiles\FLUX\FLUX.exe" -PassThru
+          Start-Sleep -Seconds 15
+          $p.Refresh()
+          Check (-not $p.HasExited) "Standalone app still running after 15 s (no crash)"
+          Check ($p.MainWindowTitle -ne '') "Standalone window open (title '$($p.MainWindowTitle)')"
+          Check ($p.WorkingSet64 -gt 10MB) "App memory $([int]($p.WorkingSet64 / 1MB)) MB"
+          Shot results/standalone.png
+          if (-not $p.HasExited) { Stop-Process $p -Force }
+
+      - name: Validate the VST3 with pluginval (loads it like a DAW)
+        if: always()
+        run: |
+          . ./helpers.ps1
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pv.zip
+          Expand-Archive pv.zip pv -Force
+          $pv = (Get-ChildItem pv -Recurse -Filter pluginval.exe | Select-Object -First 1).FullName
+          # pluginval is a GUI-subsystem exe: Start-Process -Wait is needed to get its exit code.
+          $pvArgs = @('--strictness-level','5','--validate-in-process','--timeout-ms','600000',
+                    '--output-dir',"`"$PWD\results\pv`"",'--validate',"`"$env:CommonProgramFiles\VST3\FLUX.vst3`"")
+          $p = Start-Process $pv -ArgumentList $pvArgs -Wait -PassThru -NoNewWindow `
+                 -RedirectStandardOutput results\pluginval.txt -RedirectStandardError results\pluginval-err.txt
+          $code = $p.ExitCode
+          Get-ChildItem results\pv -Recurse -File -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName | Add-Content results\pluginval.txt }
+          Get-Content results\pluginval-err.txt -ErrorAction SilentlyContinue | Add-Content results\pluginval.txt
+          Get-Content results\pluginval.txt -Tail 40
+          Check ($code -eq 0) "pluginval strictness 5: plugin loads, processes audio/MIDI, saves/restores state, opens editor (exit $code)"
+
+      - name: Uninstall
+        if: always()
+        run: |
+          . ./helpers.ps1
+          Start-Process "$env:ProgramFiles\FLUX\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          for ($i = 0; $i -lt 30 -and (Test-Path "$env:ProgramFiles\FLUX\FLUX.exe"); $i++) { Start-Sleep 1 }
+          Start-Sleep 3
+          Check (-not (Test-Path "$env:CommonProgramFiles\VST3\FLUX.vst3")) "Uninstall removed the VST3"
+          Check (-not (Test-Path "$env:ProgramFiles\FLUX\FLUX.exe")) "Uninstall removed the app"
+          Check (-not (Test-Path "$env:PUBLIC\Desktop\FLUX.lnk")) "Uninstall removed the desktop shortcut"
+
+      - name: Summary
+        if: always()
+        run: |
+          if (Test-Path results/FAILED) { 'RESULT: SOME CHECKS FAILED' | Add-Content results/report.txt }
+          else { 'RESULT: ALL CHECKS PASSED' | Add-Content results/report.txt }
+          Get-Content results/report.txt | Add-Content $env:GITHUB_STEP_SUMMARY
+
+      - name: Make sure result files are not empty
+        if: always()
+        run: |
+          foreach ($f in 'report.txt','standalone.png','pluginval.txt','install.log') {
+            $p = "results/$f"
+            if (-not (Test-Path $p) -or (Get-Item $p).Length -eq 0) { "(no output)" | Set-Content $p }
+          }
+
+      - name: Publish results
+        if: always()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: flux-vm-test
+          name: FLUX clean-VM test results
+          prerelease: true
+          make_latest: false
+          target_commitish: ${{ github.sha }}
+          body: Automated install/launch/validate/uninstall test of the latest FLUX-Setup.exe on a fresh Windows VM. Not a download for users.
+          files: |
+            results/report.txt
+            results/standalone.png
+            results/pluginval.txt
+            results/install.log
+
+      - name: Fail if any check failed
+        if: always()
+        run: if (Test-Path results/FAILED) { exit 1 }

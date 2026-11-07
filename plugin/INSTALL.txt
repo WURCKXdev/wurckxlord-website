@@ -1,0 +1,29 @@
+FLUX - line-based MPE sequencer (Windows x64)
+=============================================
+
+INSTALL THE VST3
+1. Copy the whole "FLUX.vst3" folder to:
+       C:\Program Files\Common Files\VST3\
+2. Open your DAW and rescan plugins (FL Studio: Options > Manage plugins > Find more plugins).
+3. Load "FLUX" as an instrument (it is under WurckxLord / Instrument).
+
+STANDALONE
+- Double-click FLUX.exe to use it without a DAW.
+  Options (top-left) > Audio/MIDI settings to pick your sound card and MIDI keyboard.
+
+HOW IT WORKS
+- Draw: press and drag to sketch a note line. Moving up/down while dragging makes glides.
+- Select: drag the dots (nodes) to bend pitch and time. Shift/Alt+click a line adds a node,
+  double-click a node deletes it. Drag empty space to box-select.
+- Edit menu: switch dragging to Pressure, Slide, Velocity or Release velocity.
+- In a DAW, FLUX follows the DAW's play/stop and tempo. In standalone use Play/Stop.
+- Rec: arm it, press play, and play a MIDI or MPE controller - bends, pressure and slide are recorded.
+- Synth: built-in sound. MIDI out: FLUX also sends MPE MIDI (one note per channel 2-16) so you can
+  route it to an MPE synth (Vital, Surge XT, Pigments, Serum 2...). Turn Synth off to hear only that synth.
+- Drag MIDI: drag this button onto a DAW track to drop the pattern as an MPE MIDI clip.
+  Export MIDI saves the same thing as a .mid file. Set the receiving synth's pitch bend range to
+  the "Bend range" value in FLUX (default 48).
+- Save/Open use .json files - the same format as the browser version of FLUX.
+
+Keyboard: Space play/pause, D draw, S select, H pan, Q quantise, Delete, Ctrl+Z/Y undo/redo,
+Ctrl+C/V copy/paste, Ctrl+A select all, Ctrl+wheel zoom.
